@@ -47,6 +47,17 @@ function syncSelectors() {
   buildOptions("activeTrainingConfigSelect", state.trainingConfigs);
   const checkpointOptions = getSidebarCheckpointOptions();
   buildOptions("activeCheckpointSelect", checkpointOptions, "id", "ui_label");
+  buildOptions("modelASelect", checkpointOptions, "id", "ui_label");
+  buildOptions("modelBSelect", checkpointOptions, "id", "ui_label");
+
+  const modelASelect = $("modelASelect");
+  const modelBSelect = $("modelBSelect");
+  if (modelASelect && modelASelect.options.length && !modelASelect.querySelector("option[value='']")) {
+    modelASelect.insertBefore(new Option("Select Model A", "", false, false), modelASelect.firstChild);
+  }
+  if (modelBSelect && modelBSelect.options.length && !modelBSelect.querySelector("option[value='']")) {
+    modelBSelect.insertBefore(new Option("Select Model B", "", false, false), modelBSelect.firstChild);
+  }
 
   if (!state.activeGameConfigId && state.gameConfigs.length) {
     state.activeGameConfigId = state.gameConfigs[0].id;
@@ -628,13 +639,14 @@ function attachEvents() {
     renderCheckpointDetail();
   });
 
-  $("trainModeSelect").addEventListener("change", () => {
+  $("modelASelect").addEventListener("change", () => {
     renderTrainingSelectionSummary();
-    refreshTrainingPreflight().catch(() => {});
+    renderTrainingPreflight();
   });
 
-  $("campaignEnabledToggle").addEventListener("change", (event) => {
-    $("campaignMaxVarField").style.display = event.target.checked ? "" : "none";
+  $("modelBSelect").addEventListener("change", () => {
+    renderTrainingSelectionSummary();
+    renderTrainingPreflight();
   });
 
   $("trainJobForm").addEventListener("submit", async (event) => {

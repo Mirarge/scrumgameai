@@ -185,6 +185,8 @@ export function renderJobDetail() {
     : resumeFrom
       ? resumeFrom.replace(/\\/g, "/").split("/").slice(-3).join("/")
       : "";
+  const modelA = state.checkpoints.find((item) => item.id === payload.model_a_checkpoint_id) || null;
+  const modelB = state.checkpoints.find((item) => item.id === payload.model_b_checkpoint_id) || null;
   container.innerHTML = `
     <h4>Job #${state.jobDetail.id} - ${escapeHtml(state.jobDetail.job_type)}</h4>
     <div class="card-meta">
@@ -195,8 +197,12 @@ export function renderJobDetail() {
     <div class="card-meta">
       ${payload.resume_mode ? `<span class="tag">resume ${escapeHtml(payload.resume_mode)}</span>` : "<span class='tag'>new run</span>"}
       ${payload.episodes ? `<span class="tag">${escapeHtml(String(payload.episodes))} episodes</span>` : ""}
-      ${payload.evaluation_episodes ? `<span class="tag">${escapeHtml(String(payload.evaluation_episodes))} eval eps</span>` : ""}
+      ${payload.target_win_loss_ratio ? `<span class="tag">target ratio ${escapeHtml(String(payload.target_win_loss_ratio))}</span>` : ""}
       ${payload.autopilot_after_completion ? "<span class='tag'>autopilot</span>" : ""}
+    </div>
+    <div class="card-meta">
+      ${payload.model_a_checkpoint_id ? `<span class="tag">A: ${escapeHtml(modelA ? checkpointUiLabel(modelA) : payload.model_a_checkpoint_id)}</span>` : ""}
+      ${payload.model_b_checkpoint_id ? `<span class="tag">B: ${escapeHtml(modelB ? checkpointUiLabel(modelB) : payload.model_b_checkpoint_id)}</span>` : ""}
     </div>
     ${resumeLabel ? `<div class="checkpoint-subtitle path-wrap">From: ${escapeHtml(resumeLabel)}</div>` : ""}
     ${state.jobDetail.error_message ? `<p>${escapeHtml(state.jobDetail.error_message)}</p>` : ""}
@@ -242,77 +248,65 @@ export function renderTrainingSelectionSummary() {
   const container = $("trainingSelectionSummary");
   const gameConfig = selectedGameConfig();
   const trainingConfig = selectedTrainingConfig();
-  const checkpoint = selectedCheckpoint();
-  const mode = currentTrainingMode();
-  const resumeText =
-    mode === "train"
-      ? "New training ignores the active checkpoint."
-        : checkpoint
-          ? `Resume source: ${checkpointUiLabel(checkpoint)}`
-        : "Select an active checkpoint for resume or fine-tune.";
+  const modelA = state.checkpoints.find((item) => item.id === $("modelASelect")?.value) || null;
+  const modelB = state.checkpoints.find((item) => item.id === $("modelBSelect")?.value) || null;
+  const winLossRatio = $("targetWinLossInput")?.value || "-";
 
   container.innerHTML = `
     <h4>Current Selection</h4>
     <div class="card-meta">
       <span class="tag">Game: ${escapeHtml(gameConfig?.label || "-")}</span>
       <span class="tag">Training: ${escapeHtml(trainingConfig?.label || "-")}</span>
-      <span class="tag">Mode: ${escapeHtml(mode === "train" ? "new training" : mode === "resume" ? "strict resume" : "fine-tune")}</span>
+      <span class="tag">Model A: ${escapeHtml(modelA ? checkpointUiLabel(modelA) : "-")}</span>
+      <span class="tag">Model B: ${escapeHtml(modelB ? checkpointUiLabel(modelB) : "-")}</span>
+      <span class="tag">Ratio: ${escapeHtml(winLossRatio)}</span>
     </div>
-    <p>${escapeHtml(resumeText)}</p>
   `;
 }
 
 export function renderTrainingPreflight() {
   const container = $("trainingPreflightCard");
-  const mode = currentTrainingMode();
-  const checkpoint = selectedCheckpoint();
   const gameConfig = selectedGameConfig();
-  if (mode === "train") {
-    state.trainingPreflight = null;
-    container.className = "list-card";
-    container.innerHTML = `
-      <h4>Launch Check</h4>
-      <p>New training will start from random weights.</p>
-      <div class="card-meta">
-        <span class="tag good">safe to launch</span>
-        <span class="tag">game ${escapeHtml(gameConfig?.label || "-")}</span>
-      </div>
-    `;
-    return;
-  }
+  const trainingConfig = selectedTrainingConfig();
+  const modelA = state.checkpoints.find((item) => item.id === $("modelASelect")?.value) || null;
+  const modelB = state.checkpoints.find((item) => item.id === $("modelBSelect")?.value) || null;
+  const episodes = Number($("trainEpisodesInput")?.value || 0);
+  const ratio = Number($("targetWinLossInput")?.value || 0);
 
-  if (!gameConfig || !checkpoint) {
+  if (!modelA || !modelB) {
     container.className = "empty-state";
-    container.textContent = "Select both a game config and a checkpoint to validate resume or fine-tune.";
+    container.textContent = "Select two different models to enable training.";
     return;
   }
 
-  if (!state.trainingPreflight) {
+  if (modelA.id === modelB.id) {
     container.className = "empty-state";
-    container.textContent = "Checking compatibility for the selected mode...";
+    container.textContent = "Choose two different models for the matchup.";
     return;
   }
 
-  const strictOkay = String(state.trainingPreflight.strict_resume_status || "").includes("compatible");
-  const fineTuneOkay = String(state.trainingPreflight.fine_tune_status || "").includes("compatible");
-  const activeOkay = mode === "resume" ? strictOkay : fineTuneOkay;
-  const launchTone = activeOkay ? "good" : "bad";
-  const activeLabel = mode === "resume" ? "strict resume" : "fine-tune";
-  const guidance = activeOkay
-    ? `The current ${activeLabel} pair looks usable.`
-    : `The current ${activeLabel} pair is not safe to launch.`;
+  if (!episodes || episodes < 1) {
+    container.className = "empty-state";
+    container.textContent = "Enter a valid episode count to enable training.";
+    return;
+  }
+
+  if (!ratio || ratio <= 0) {
+    container.className = "empty-state";
+    container.textContent = "Enter a valid win/loss ratio greater than 0.";
+    return;
+  }
 
   container.className = "list-card";
   container.innerHTML = `
     <h4>Launch Check</h4>
-    <p>${escapeHtml(guidance)}</p>
+    <p>The selected model matchup is ready to queue.</p>
     <div class="card-meta">
-      <span class="tag ${launchTone}">${escapeHtml(activeLabel)} ${activeOkay ? "ready" : "blocked"}</span>
-      <span class="tag ${compatTone(state.trainingPreflight.strict_resume_status)}">strict ${escapeHtml(state.trainingPreflight.strict_resume_status)}</span>
-      <span class="tag ${compatTone(state.trainingPreflight.fine_tune_status)}">fine-tune ${escapeHtml(state.trainingPreflight.fine_tune_status)}</span>
-    </div>
-    <div class="card-meta">
-      <span class="tag">brain ${escapeHtml(checkpointUiLabel(checkpoint))}</span>
+      <span class="tag good">ready to launch</span>
+      <span class="tag">game ${escapeHtml(gameConfig?.label || "-")}</span>
+      <span class="tag">training ${escapeHtml(trainingConfig?.label || "-")}</span>
+      <span class="tag">episodes ${escapeHtml(String(episodes))}</span>
+      <span class="tag">ratio ${escapeHtml(String(ratio))}</span>
     </div>
   `;
 }
@@ -370,32 +364,44 @@ export async function refreshTrainingPreflight() {
 
 export async function queueTrainingJob(event) {
   event.preventDefault();
-  const mode = currentTrainingMode();
   const gameConfig = selectedGameConfig();
   const trainingConfig = selectedTrainingConfig();
-  const checkpoint = selectedCheckpoint();
+  const modelAId = $("modelASelect")?.value || "";
+  const modelBId = $("modelBSelect")?.value || "";
+  const episodes = Number($("trainEpisodesInput")?.value || 0);
+  const winLossRatio = Number($("targetWinLossInput")?.value || 0);
 
   if (!gameConfig || !trainingConfig) {
     showMessage("Select both a game config and training config first.", "error");
     return;
   }
-  if (mode !== "train" && !checkpoint) {
-    showMessage("Select an active checkpoint for resume or fine-tune.", "error");
+  if (!modelAId || !modelBId) {
+    showMessage("Select both Model A and Model B.", "error");
+    return;
+  }
+  if (modelAId === modelBId) {
+    showMessage("Choose two different models for the matchup.", "error");
+    return;
+  }
+  if (!episodes || episodes < 1) {
+    showMessage("Enter a valid positive episode count.", "error");
+    return;
+  }
+  if (!winLossRatio || winLossRatio <= 0) {
+    showMessage("Enter a win/loss ratio greater than 0.", "error");
     return;
   }
 
-  const autopilot = $("autopilotAfterCompletionInput")?.checked || false;
-  const campaignEnabled = $("campaignEnabledInput")?.checked || false;
-  const campaignId = $("campaignIdInput")?.value.trim() || null;
-  const campaignVariations = Number($("campaignVariationsInput")?.value || 5);
-
   const jobPayload = {
-    job_type: mode === "fine_tune" ? "fine_tune" : "train",
+    job_type: "train",
     game_config_id: gameConfig.id,
     training_config_id: trainingConfig.id,
-    resume_mode: mode !== "train" ? mode : undefined,
-    resume_from: mode !== "train" && checkpoint ? checkpoint.path : undefined,
-    autopilot_after_completion: autopilot,
+    model_a_checkpoint_id: modelAId,
+    model_b_checkpoint_id: modelBId,
+    episodes,
+    target_win_loss_ratio: winLossRatio,
+    run_name: $("trainRunNameInput")?.value.trim() || undefined,
+    run_notes: $("trainNotesInput")?.value.trim() || undefined,
   };
 
   const job = await apiRequest("/jobs/train", {
@@ -403,22 +409,6 @@ export async function queueTrainingJob(event) {
     body: JSON.stringify(jobPayload),
   });
   showMessage(`Queued ${job.job_type} job #${job.id}.`);
-
-  if (campaignEnabled && campaignId) {
-    try {
-      await apiRequest("/campaigns", {
-        method: "POST",
-        body: JSON.stringify({
-          campaign_id: campaignId,
-          base_job_id: job.id,
-          max_variations: campaignVariations,
-        }),
-      });
-      showMessage(`Campaign "${campaignId}" started.`);
-    } catch (error) {
-      showMessage(`Job queued but campaign failed: ${error.message}`, "error");
-    }
-  }
 
   await refreshJobs();
 }
