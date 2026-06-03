@@ -6,7 +6,7 @@ from typing import Any
 
 from game_runtime.scrum_game_env import ScrumGameEnv
 from play.deployment_profiles import choose_profile_action
-from rl.dqn_agent import encode_state
+from game.v2_deep_rl.rl.dqn_agile_agent import encode_state
 
 
 def valid_actions_for_state(env: ScrumGameEnv, state: dict[str, Any]) -> list[int]:

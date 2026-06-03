@@ -8,7 +8,7 @@ import torch
 
 from game_runtime.scrum_game_env import ScrumGameEnv
 from rl.checkpoint_utils import load_agent_for_inference
-from rl.dqn_agent import encode_state
+from game.v2_deep_rl.rl.dqn_agile_agent import encode_state
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]

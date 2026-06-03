@@ -8,13 +8,13 @@ import random
 import matplotlib.pyplot as plt
 import torch
 
-from rl.checkpoint_utils import (
+from game.v2_deep_rl.rl.checkpoint_utils import (
     build_agent_for_config,
     load_agent_from_checkpoint,
     load_checkpoint_payload,
     save_checkpoint,
 )
-from config.config_manager import (
+from game.v2_deep_rl.config.config_manager import (
     GameConfig,
     TrainingConfig,
     compute_rule_signature,
@@ -24,15 +24,22 @@ from config.config_manager import (
     save_game_config,
     save_training_config,
 )
-from game_rules.rule_randomization import sample_game_config
-from game_runtime.scrum_game_env import ScrumGameEnv
-from rl.dqn_agent import encode_state
-from rl.model_utils import save_metrics_json
+from game.v2_deep_rl.game_rules.rule_randomization import sample_game_config
+from game.v2_deep_rl.game_runtime.scrum_game_env import ScrumGameEnv
+from game.v2_deep_rl.rl.dqn_waterfall_agent import encode_state
+from game.v2_deep_rl.rl.model_utils import save_metrics_json
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 ARTIFACTS_DIR = BASE_DIR / "artifacts"
 RUNS_DIR = ARTIFACTS_DIR / "runs"
+
+def print_progress_bar(current_episode, total_episodes, bar_length=50):
+    """Print a progress bar for training episodes."""
+    percent = current_episode / total_episodes
+    filled = int(bar_length * percent)
+    bar = '█' * filled + '░' * (bar_length - filled)
+    print(f"\rProgress: [{bar}] {percent*100:.1f}% ({current_episode}/{total_episodes})", end='', flush=True)
 
 
 def _slugify_run_name(value: str | None) -> str:
@@ -712,6 +719,9 @@ def train_dqn_agent(
             epsilon_decay_episodes=resolved_training_config.epsilon_decay_episodes,
         )
 
+        # Clear screen using ANSI escape codes
+        print("\033[H\033[2J", end="")
+        print_progress_bar(episode, final_episode)
         while not done:
             action = agent.choose_action(state_vector, epsilon=epsilon)
             episode_action_counts[action] += 1
@@ -1015,3 +1025,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+def print_progress_bar(current_episode, total_episodes, bar_length=50):
+    """Print a progress bar for training episodes."""
+    percent = current_episode / total_episodes
+    filled = int(bar_length * percent)
+    bar = '█' * filled + '░' * (bar_length - filled)
+    print(f"\rProgress: [{bar}] {percent*100:.1f}% ({current_episode}/{total_episodes})", end='', flush=True)

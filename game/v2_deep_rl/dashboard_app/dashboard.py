@@ -29,7 +29,7 @@ from play.match_runner import (
     valid_actions_for_state,
 )
 from rl.checkpoint_utils import load_agent_from_checkpoint
-from rl.dqn_agent import encode_state
+from game.v2_deep_rl.rl.dqn_agile_agent import encode_state
 from training.train_dqn import create_timestamped_run_directory
 
 

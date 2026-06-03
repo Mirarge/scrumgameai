@@ -6,15 +6,15 @@ from typing import Any
 
 import torch
 
-from config.config_manager import (
+from game.v2_deep_rl.config.config_manager import (
     GameConfig,
     TrainingConfig,
     compute_rule_signature,
     compute_training_signature,
     load_game_config,
 )
-from game_runtime.scrum_game_env import ScrumGameEnv
-from rl.dqn_agent import DQNAgent, encode_state
+from game.v2_deep_rl.game_runtime.scrum_game_env import ScrumGameEnv
+from game.v2_deep_rl.rl.dqn_waterfall_agent import WaterfallAgent, encode_state
 
 
 def build_agent_for_config(
@@ -29,7 +29,7 @@ def build_agent_for_config(
     """Construct an agent whose network shape matches one game config."""
     env = ScrumGameEnv(game_config=game_config)
     state_dim = len(encode_state(env.reset(seed=42), env))
-    agent = DQNAgent(
+    agent = WaterfallAgent(
         state_dim=state_dim,
         num_actions=env.num_actions,
         learning_rate=learning_rate,

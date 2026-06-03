@@ -35,7 +35,7 @@ def _resolve_checkpoint(checkpoint_id: str) -> dict:
 def _evaluate_one_seed(agent, game_config, seed: int) -> dict:
     import random  # noqa: E402
     import torch  # noqa: E402
-    from rl.dqn_agent import encode_state  # noqa: E402
+    from game.v2_deep_rl.rl.dqn_agile_agent import encode_state  # noqa: E402
     from game_runtime.scrum_game_env import ScrumGameEnv  # noqa: E402
     random.seed(seed)
     torch.manual_seed(seed)
