@@ -632,6 +632,7 @@ def train_dqn_agent(
         replay_capacity=resolved_training_config.replay_capacity,
         batch_size=resolved_training_config.batch_size,
         target_update_frequency=resolved_training_config.target_update_frequency,
+        agentType="agile"
     )
     resume_metadata = initialize_agent_from_checkpoint(
         agent,

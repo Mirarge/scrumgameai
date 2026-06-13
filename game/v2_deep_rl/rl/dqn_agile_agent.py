@@ -58,7 +58,7 @@ class AgileAgent:
         if state.get("training_steps") is not None:
             self.training_steps = int(state["training_steps"])
 
-    def choose_action(self, state_vector, epsilon):
+    def choose_action(self, state_vector, epsilon, valid_actions=None):
         """Select an action using epsilon-greedy exploration."""
 
         if random.random() < epsilon:

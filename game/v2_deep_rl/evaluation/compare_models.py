@@ -12,8 +12,8 @@ from game.v2_deep_rl.rl.checkpoint_utils import load_agent_for_inference
 game_config = _resolve_game_config("default_game_config")[0]
 
 agent_a, _, _ = load_agent_for_inference(
-    checkpoint_path="./game/v2_deep_rl/artifacts/runs/waterfall_training/checkpoints/best_scrum_model.pth",
-    agentType="waterfall"
+    checkpoint_path="./game/v2_deep_rl/artifacts/runs/agile_training/checkpoints/best_scrum_model.pth",
+    agentType="agile"
 )
 
 agent_b, _, _ = load_agent_for_inference(
@@ -27,7 +27,7 @@ for i in range(800):
     match_state = start_parallel_match(
         game_config,
         [
-            ModelController(agent=agent_a, profile_name="random", display_name="Baseline"),
+            ModelController(agent=agent_a, profile_name="expert", display_name="Baseline"),
             ModelController(agent=agent_b, profile_name="expert", display_name="Trained Model"),
         ],
         base_seed=i,
