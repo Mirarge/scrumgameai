@@ -28,6 +28,7 @@ from game.v2_deep_rl.game_rules.rule_randomization import sample_game_config
 from game.v2_deep_rl.game_runtime.scrum_game_env import ScrumGameEnv
 from game.v2_deep_rl.rl.dqn_waterfall_agent import encode_state
 from game.v2_deep_rl.rl.model_utils import save_metrics_json
+from game.v2_deep_rl.play.match_runner import valid_actions_for_state
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -39,7 +40,7 @@ def print_progress_bar(current_episode, total_episodes, bar_length=50):
     percent = current_episode / total_episodes
     filled = int(bar_length * percent)
     bar = '█' * filled + '░' * (bar_length - filled)
-    print(f"\rProgress: [{bar}] {percent*100:.1f}% ({current_episode}/{total_episodes})", end='', flush=True)
+    print(f"\rProgress: [{bar}] {percent*100:.1f}% ({current_episode}/{total_episodes})", flush=True)
 
 
 def _slugify_run_name(value: str | None) -> str:
@@ -373,7 +374,8 @@ def evaluate_dqn_agent(agent, num_episodes=1000, seed=1042, game_config: GameCon
             cumulative_reward = 0
 
             while not done:
-                action = agent.choose_action(state_vector, epsilon=0.0)
+                valid_actions = valid_actions_for_state(env, state)
+                action = agent.choose_action(state_vector, epsilon=0.0, valid_actions=valid_actions)
                 action_counts[action] += 1
                 next_state, reward, done, info = env.step(action)
                 next_state_vector = encode_state(next_state, env)
@@ -722,8 +724,11 @@ def train_dqn_agent(
         # Clear screen using ANSI escape codes
         print("\033[H\033[2J", end="")
         print_progress_bar(episode, final_episode)
+        epsilon = 0.2
         while not done:
-            action = agent.choose_action(state_vector, epsilon=epsilon)
+            valid_actions = valid_actions_for_state(active_training_env, state)
+            action = agent.choose_action(state_vector, epsilon=epsilon, valid_actions=valid_actions)
+            print("Chose action: ", action)
             episode_action_counts[action] += 1
 
             next_state, reward, done, info = active_training_env.step(action)
@@ -739,6 +744,7 @@ def train_dqn_agent(
 
             cumulative_reward += reward
             state_vector = next_state_vector
+            state = next_state
 
             if done and info.get("terminal_reason") == "bankruptcy":
                 bankruptcy_this_episode = 1

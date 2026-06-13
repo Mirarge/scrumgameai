@@ -4,7 +4,7 @@ import random
 import torch
 from torch import nn
 
-from dqn_basics import QNetwork, ReplayBuffer
+from game.v2_deep_rl.rl.dqn_basics import QNetwork, ReplayBuffer
 
 
 class AgileAgent:

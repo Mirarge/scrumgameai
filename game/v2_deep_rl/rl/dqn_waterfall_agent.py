@@ -58,10 +58,20 @@ class WaterfallAgent:
         if state.get("training_steps") is not None:
             self.training_steps = int(state["training_steps"])
 
-    def choose_action(self, state_vector, epsilon):
+    def choose_action(self, state_vector, epsilon, valid_actions=None):
         q_values = self.predict_q_values(state_vector)
-        print(state_vector)
-        return max(range(self.num_actions), key=lambda action: q_values[action])
+
+        print(valid_actions)
+
+        if 0 in valid_actions:
+            return 0
+        else:
+            if random.random() < epsilon:
+                print("random")
+                return random.randint(1, self.num_actions - 1)
+            else:
+                action = max(valid_actions, key=lambda action: q_values[action])
+                return action
 
     def choose_action_with_temperature(self, state_vector, temperature=1.0):
         """Sample an action from the current Q-values using a softmax temperature."""

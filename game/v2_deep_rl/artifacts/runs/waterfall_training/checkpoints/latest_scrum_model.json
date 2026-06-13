@@ -1,7 +1,7 @@
 {
   "format_version": 2,
   "rule_signature": "346b961aa3f80405ed794a11a06a3dc565ea0007fb2946649234c9cade7f0e7c",
-  "training_signature": "c5dccb17add07f1fedabf99176683eba548bb0c668d370053605463de902a0da",
+  "training_signature": "2f754704f2d5d188a2a2ccdcf5209940cf4aeb013ac07fed372dd10d8330b09a",
   "game_config": {
     "schema_version": "1.0",
     "config_name": "Advanced Classical DDQN",
@@ -303,7 +303,7 @@
     "reserved_fields": {}
   },
   "training_config": {
-    "episodes": 100,
+    "episodes": 50000,
     "evaluation_episodes": 100,
     "checkpoint_interval": 10000,
     "evaluation_interval": 10000,
@@ -327,6 +327,6 @@
   "state_dim": 103,
   "num_actions": 8,
   "device": "cpu",
-  "episode": 100,
-  "average_reward": null
+  "episode": 50000,
+  "average_reward": 22865.0
 }

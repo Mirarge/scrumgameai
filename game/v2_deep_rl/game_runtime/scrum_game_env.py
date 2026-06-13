@@ -86,7 +86,7 @@ class ScrumGameEnv:
         self.win_probability_lookup = self._build_win_probability_lookup()
 
         self.current_money = self.starting_money
-        self.current_product = 1
+        self.current_product = 0
         self.turn_count = 0
         self.loans_taken = 0
         self.turns_with_loan = 0
@@ -169,7 +169,7 @@ class ScrumGameEnv:
             random.seed(seed)
 
         self.current_money = self.starting_money
-        self.current_product = 1
+        self.current_product = 0
         self.turn_count = 0
         self.loans_taken = 0
         self.turns_with_loan = 0
@@ -562,6 +562,7 @@ class ScrumGameEnv:
 
     def _compute_product_state(self, product_id):
         """Compute the visible state of one product's next sprint."""
+
         product_index = product_id - 1
         next_sprint = self.product_next_sprints[product_index]
         completed = next_sprint > self.sprints_per_product

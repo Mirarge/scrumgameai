@@ -327,7 +327,5 @@
   "state_dim": 103,
   "num_actions": 8,
   "device": "cpu",
-  "episode": 50000,
-  "average_reward": 22865.0,
-  "is_best_checkpoint": true
+  "episode": 20000
 }

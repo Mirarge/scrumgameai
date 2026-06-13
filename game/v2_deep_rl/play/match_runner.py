@@ -4,8 +4,8 @@ from dataclasses import dataclass
 import random
 from typing import Any
 
-from game_runtime.scrum_game_env import ScrumGameEnv
-from play.deployment_profiles import choose_profile_action
+from game.v2_deep_rl.game_runtime.scrum_game_env import ScrumGameEnv
+from game.v2_deep_rl.play.deployment_profiles import choose_profile_action
 from game.v2_deep_rl.rl.dqn_agile_agent import encode_state
 
 
@@ -14,7 +14,9 @@ def valid_actions_for_state(env: ScrumGameEnv, state: dict[str, Any]) -> list[in
     valid_actions = []
     current_product = int(state["current_product"])
 
-    if not state["current_product_completed"]:
+    print("Current product: ",current_product)
+
+    if current_product > 0 and not state["current_product_completed"]:
         valid_actions.append(0)
 
     for product_id in range(1, env.products_count + 1):
