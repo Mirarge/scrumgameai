@@ -60,6 +60,7 @@ class AgileAgent:
 
     def choose_action(self, state_vector, epsilon):
         """Select an action using epsilon-greedy exploration."""
+
         if random.random() < epsilon:
             return random.randint(0, self.num_actions - 1)
 

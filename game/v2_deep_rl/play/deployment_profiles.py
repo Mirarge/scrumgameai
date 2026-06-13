@@ -15,6 +15,10 @@ PROFILE_CONFIGS = {
         "epsilon": 0.0,
         "temperature": 0.0,
     },
+    "random": {
+        "epsilon": 2.0,
+        "temperature": 0.0,
+    }
 }
 
 
@@ -34,6 +38,8 @@ def choose_profile_action(agent, state_vector, profile_name, valid_actions=None)
     profile = PROFILE_CONFIGS[profile_key]
     epsilon = profile["epsilon"]
     temperature = profile["temperature"]
+    if agent is not None:
+        return agent.choose_action(state_vector, epsilon, valid_actions=valid_actions)
     actions = _available_actions(agent, valid_actions)
 
     if random.random() < epsilon:

@@ -158,6 +158,7 @@ def play_round(match_state, human_action: int | None = None) -> dict[str, Any]:
         env = seat["env"]
         state = seat["state"]
 
+
         if controller.controller_type == "human":
             if human_action is None:
                 continue

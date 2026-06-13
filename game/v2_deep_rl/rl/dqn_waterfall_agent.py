@@ -61,13 +61,10 @@ class WaterfallAgent:
     def choose_action(self, state_vector, epsilon, valid_actions=None):
         q_values = self.predict_q_values(state_vector)
 
-        print(valid_actions)
-
         if 0 in valid_actions:
             return 0
         else:
             if random.random() < epsilon:
-                print("random")
                 return random.randint(1, self.num_actions - 1)
             else:
                 action = max(valid_actions, key=lambda action: q_values[action])

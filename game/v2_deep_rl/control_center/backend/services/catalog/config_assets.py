@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import re
 
-from services.app_paths import (
+from game.v2_deep_rl.control_center.backend.services.app_paths import (
     CUSTOM_GAME_CONFIG_DIR,
     DEFAULT_GAME_CONFIG_PATH,
     DEFAULT_TRAINING_CONFIG_PATH,

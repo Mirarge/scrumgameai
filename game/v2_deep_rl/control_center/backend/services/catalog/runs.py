@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from services.app_paths import RUNS_DIR
-from services.io_utils import read_json_safe, safe_float, safe_int, tail_csv_rows
+from game.v2_deep_rl.control_center.backend.services.app_paths import RUNS_DIR
+from game.v2_deep_rl.control_center.backend.services.io_utils import read_json_safe, safe_float, safe_int, tail_csv_rows
 
 
 def list_runs() -> list[dict]:

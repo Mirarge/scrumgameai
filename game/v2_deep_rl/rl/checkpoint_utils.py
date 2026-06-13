@@ -14,7 +14,8 @@ from game.v2_deep_rl.config.config_manager import (
     load_game_config,
 )
 from game.v2_deep_rl.game_runtime.scrum_game_env import ScrumGameEnv
-from game.v2_deep_rl.rl.dqn_waterfall_agent import WaterfallAgent, encode_state
+from game.v2_deep_rl.rl.dqn_waterfall_agent import WaterfallAgent, encode_state as encode_state_waterfall
+from game.v2_deep_rl.rl.dqn_agile_agent import AgileAgent, encode_state as encode_state_agile
 
 
 def build_agent_for_config(
@@ -25,20 +26,34 @@ def build_agent_for_config(
     batch_size: int = 128,
     target_update_frequency: int = 2000,
     device=None,
+    agentType = "agile",
 ):
     """Construct an agent whose network shape matches one game config."""
     env = ScrumGameEnv(game_config=game_config)
-    state_dim = len(encode_state(env.reset(seed=42), env))
-    agent = WaterfallAgent(
-        state_dim=state_dim,
-        num_actions=env.num_actions,
-        learning_rate=learning_rate,
-        gamma=gamma,
-        replay_capacity=replay_capacity,
-        batch_size=batch_size,
-        target_update_frequency=target_update_frequency,
-        device=device,
-    )
+    if agentType == "agile":
+        state_dim = len(encode_state_agile(env.reset(seed=42), env))
+        agent= AgileAgent(
+            state_dim=state_dim,
+            num_actions=env.num_actions,
+            learning_rate=learning_rate,
+            gamma=gamma,
+            replay_capacity=replay_capacity,
+            batch_size=batch_size,
+            target_update_frequency=target_update_frequency,
+            device=device,
+        )
+    else: 
+        state_dim = len(encode_state_waterfall(env.reset(seed=42), env))
+        agent = WaterfallAgent(
+            state_dim=state_dim,
+            num_actions=env.num_actions,
+            learning_rate=learning_rate,
+            gamma=gamma,
+            replay_capacity=replay_capacity,
+            batch_size=batch_size,
+            target_update_frequency=target_update_frequency,
+            device=device,
+        )
     return agent, env
 
 
@@ -232,6 +247,7 @@ def load_agent_for_inference(
     checkpoint_path,
     game_config: GameConfig | None = None,
     strict_signature: bool = True,
+    agentType = "agile",
 ):
     """Load only policy weights for play/evaluation when a compact copy exists."""
     checkpoint_path = Path(checkpoint_path)
@@ -275,6 +291,7 @@ def load_agent_for_inference(
         ),
         gamma=(training_config.gamma if training_config is not None else 0.85),
         replay_capacity=1,
+        agentType=agentType,
     )
 
     state_dict = payload["model_state_dict"]
