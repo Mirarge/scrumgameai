@@ -14,8 +14,6 @@ def valid_actions_for_state(env: ScrumGameEnv, state: dict[str, Any]) -> list[in
     valid_actions = []
     current_product = int(state["current_product"])
 
-    print("Current product: ",current_product)
-
     if current_product > 0 and not state["current_product_completed"]:
         valid_actions.append(0)
 

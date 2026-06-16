@@ -203,10 +203,10 @@ def epsilon_by_episode(
     episode,
     epsilon_start=1.0,
     epsilon_min=0.05,
-    epsilon_decay_episodes=450000,
+    epsilon_decay_episodes=50000,
 ):
     """
-    Linearly decay epsilon very slowly across the first 450,000 episodes.
+    Linearly decay epsilon very slowly across the first 50,000 episodes.
 
     The 8-action branch needs more exploration than the earlier binary-action setup.
     """
@@ -693,6 +693,7 @@ def train_dqn_agent(
             },
         )
 
+    # training loop
     for episode in range(first_episode, final_episode + 1):
         block_episode = episode - resume_start_episode
         if resolved_training_config.rule_randomization_enabled and (
@@ -725,7 +726,6 @@ def train_dqn_agent(
         # Clear screen using ANSI escape codes
         print("\033[H\033[2J", end="")
         print_progress_bar(episode, final_episode)
-        epsilon = 0.2
         while not done:
             valid_actions = valid_actions_for_state(active_training_env, state)
             action = agent.choose_action(state_vector, epsilon=epsilon, valid_actions=valid_actions)
