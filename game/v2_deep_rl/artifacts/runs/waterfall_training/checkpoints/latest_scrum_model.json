@@ -328,5 +328,5 @@
   "num_actions": 8,
   "device": "cpu",
   "episode": 50000,
-  "average_reward": 22865.0
+  "average_reward": 2802.5
 }

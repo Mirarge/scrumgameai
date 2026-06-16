@@ -328,6 +328,6 @@
   "num_actions": 8,
   "device": "cpu",
   "episode": 50000,
-  "average_reward": 114966.0,
+  "average_reward": 77416.5,
   "is_best_checkpoint": true
 }
