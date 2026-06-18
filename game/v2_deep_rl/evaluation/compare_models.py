@@ -26,7 +26,8 @@ agent_b_wins = 0
 ties = 0
 bankruptcy_losses = 0
 
-episodes = 800
+episodes = 5
+start_episode = 500000
 
 agent_a_name = "Baseline"
 agent_b_name = "Trained Model"
@@ -34,12 +35,12 @@ agent_b_name = "Trained Model"
 agent_a_total = 0
 agent_b_total = 0
 
-for i in range(episodes):
+for i in range(start_episode, start_episode + episodes):
     match_state = start_parallel_match(
         game_config,
         [
-            ModelController(agent=waterfall, profile_name="random", display_name=agent_a_name),
-            ModelController(agent=waterfall, profile_name="expert", display_name=agent_b_name),
+            ModelController(agent=agile, profile_name="random", display_name=agent_a_name),
+            ModelController(agent=agile, profile_name="expert", display_name=agent_b_name),
         ],
         base_seed=i,
     )
