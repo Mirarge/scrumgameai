@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import random
 
-from game.v2_deep_rl.config.config_manager import GameConfig, normalize_product_key
+from config.config_manager import GameConfig, normalize_product_key
 
 
 @dataclass(frozen=True)

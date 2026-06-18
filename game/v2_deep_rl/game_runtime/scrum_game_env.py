@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import random
 
-from game.v2_deep_rl.config.config_manager import GameConfig, compute_rule_signature, load_game_config, normalize_product_key
-from game.v2_deep_rl.game_rules.cards import IncidentDeck, build_incident_cards
-from game.v2_deep_rl.game_rules.refinements import ConfiguredRefinementModel
+from config.config_manager import GameConfig, compute_rule_signature, load_game_config, normalize_product_key
+from game_rules.cards import IncidentDeck, build_incident_cards
+from game_rules.refinements import ConfiguredRefinementModel
 
 
 class ScrumGameEnv:

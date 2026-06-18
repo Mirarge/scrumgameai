@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from game.v2_deep_rl.control_center.backend.services.app_paths import (
+from services.app_paths import (
     CURRENT_CHECKPOINT_DIR,
     DROPLET_RUNS_DIR,
     PLAYABLE_MODEL_V1_DIR,
@@ -10,7 +10,7 @@ from game.v2_deep_rl.control_center.backend.services.app_paths import (
     REPO_ROOT,
     RUNS_DIR,
 )
-from game.v2_deep_rl.control_center.backend.services.catalog_service import list_game_configs
+from services.catalog_service import list_game_configs
 
 
 def _engine_imports():

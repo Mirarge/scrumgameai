@@ -6,16 +6,16 @@ from typing import Any
 
 import torch
 
-from game.v2_deep_rl.config.config_manager import (
+from config.config_manager import (
     GameConfig,
     TrainingConfig,
     compute_rule_signature,
     compute_training_signature,
     load_game_config,
 )
-from game.v2_deep_rl.game_runtime.scrum_game_env import ScrumGameEnv
-from game.v2_deep_rl.rl.dqn_waterfall_agent import WaterfallAgent, encode_state as encode_state_waterfall
-from game.v2_deep_rl.rl.dqn_agile_agent import AgileAgent, encode_state as encode_state_agile
+from game_runtime.scrum_game_env import ScrumGameEnv
+from rl.dqn_waterfall_agent import WaterfallAgent, encode_state as encode_state_waterfall
+from rl.dqn_agile_agent import AgileAgent, encode_state as encode_state_agile
 
 
 def build_agent_for_config(

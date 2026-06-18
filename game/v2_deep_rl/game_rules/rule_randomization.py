@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from typing import Any
 
-from game.v2_deep_rl.config.config_manager import GameConfig
+from config.config_manager import GameConfig
 
 
 DEFAULT_RULE_RANDOMIZATION_BOUNDS: dict[str, Any] = {

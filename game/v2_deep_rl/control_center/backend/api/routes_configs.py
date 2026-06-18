@@ -100,3 +100,12 @@ def delete_training_config(config_id: str):
         return delete_training_config_asset(config_id)
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
+    
+@router.post("/balancing")
+def post_balancing_config(payload: dict):
+    """Send config data to balance with."""
+    try:
+        return validate_game_config_asset(payload)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
