@@ -274,8 +274,8 @@
                   <textarea id="trainingConfigEditor" rows="22"></textarea>
                 </label>
                 <div class="button-row">
-                  <button id="saveTrainingConfigButton" class="button primary" type="button">Save As New</button>
-                  <button id="overwriteTrainingConfigButton" class="button secondary" type="button">Overwrite Active</button>
+                    <button id="saveTrainingConfigButton" class="button primary" type="button">Save As New</button>
+                    <button id="overwriteTrainingConfigButton" class="button secondary" type="button">Overwrite Active</button>
                 </div>
                 <div id="trainingConfigValidationCard" class="empty-state">Validate the current training config to see structural errors.</div>
               </div>
@@ -345,6 +345,14 @@
                 </label>
               </div>
               <button class="button primary" type="submit">Queue Training Job</button>
+              <div style="margin-top:0.5rem; border-top:1px solid var(--border); padding-top:0.5rem">
+                <label class="field"><span>Ruleset Search - Initial Games</span><input id="searchInitialGamesInput" type="number" min="1" value="10" /></label>
+                <label class="field"><span>Max Rulesets</span><input id="searchMaxRulesetsInput" type="number" min="1" value="50" /></label>
+                <label class="field"><span>Retrain Episodes</span><input id="searchRetrainEpisodesInput" type="number" min="1" value="500" /></label>
+                <label class="field"><span>Promising Target</span><input id="searchPromisingTargetInput" type="number" min="0" max="1" step="0.01" value="0.7" /></label>
+                <label class="field"><span>Leniency</span><input id="searchLeniencyInput" type="number" min="0" max="1" step="0.01" value="0.05" /></label>
+                <button id="queueRulesetSearchButton" class="button secondary" type="button">Queue Ruleset Search</button>
+              </div>
             </form>
           </article>
 

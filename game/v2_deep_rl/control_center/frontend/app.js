@@ -3311,6 +3311,34 @@ async function queueRobustnessJob(event) {
   await refreshJobs();
 }
 
+async function queueRulesetSearchJob(event) {
+  event.preventDefault();
+  if (!state.activeGameConfigId) {
+    showMessage("Select a game config first.", "error");
+    return;
+  }
+  const payload = {
+    game_config_path: selectedGameConfig()?.path || "",
+    initial_games: Number($("searchInitialGamesInput").value) || 10,
+    max_rulesets: Number($("searchMaxRulesetsInput").value) || 50,
+    retrain_episodes: Number($("searchRetrainEpisodesInput").value) || 500,
+    promising_target: Number($("searchPromisingTargetInput").value) || 0.7,
+    leniency: Number($("searchLeniencyInput").value) || 0.05,
+  };
+
+  try {
+    const job = await apiRequest("/jobs/ruleset-search", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    state.activeProgressJobId = job.id;
+    showMessage(`Queued ruleset_search job #${job.id}.`);
+    await refreshJobs();
+  } catch (err) {
+    showMessage(err.message, "error");
+  }
+}
+
 async function createPlaySession(event) {
   event.preventDefault();
   if (!state.activeGameConfigId) {
@@ -3627,6 +3655,14 @@ function attachEvents() {
   $("robustnessJobForm").addEventListener("submit", async (event) => {
     try {
       await queueRobustnessJob(event);
+    } catch (error) {
+      showMessage(error.message, "error");
+    }
+  });
+
+  $("queueRulesetSearchButton")?.addEventListener("click", async (event) => {
+    try {
+      await queueRulesetSearchJob(event);
     } catch (error) {
       showMessage(error.message, "error");
     }

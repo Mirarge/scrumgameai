@@ -284,6 +284,23 @@ def enqueue_evaluation_job(payload: dict) -> dict:
     return get_job(job["id"])
 
 
+def enqueue_ruleset_search_job(payload: dict) -> dict:
+    """Queue a ruleset search job which explores randomized configs."""
+    init_db()
+    job_type = "ruleset_search"
+    run_dir = create_job_run_dir(job_type, run_name=payload.get("run_name"))
+    stdout_log_path = default_stdout_log(run_dir, job_type)
+
+    job = create_job(
+        job_type=job_type,
+        payload=payload,
+        stdout_log_path=str(stdout_log_path),
+        run_dir=str(run_dir),
+    )
+    dispatch_next_job()
+    return get_job(job["id"])
+
+
 def stop_job(job_id: int) -> dict:
     init_db()
     job = get_job(job_id)

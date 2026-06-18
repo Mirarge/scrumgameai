@@ -112,6 +112,36 @@ def build_command(job: dict) -> list[str]:
             str(payload["run_dir"]),
         ]
 
+    if job["job_type"] == "ruleset_search":
+        command = [
+            python_command,
+            "-m",
+            "evaluation.ruleset_search",
+            "--run-dir",
+            str(job["run_dir"]),
+        ]
+        if payload.get("game_config_path"):
+            command.extend(["--game-config", str(payload.get("game_config_path"))])
+        if payload.get("initial_games") is not None:
+            command.extend(["--initial-games", str(int(payload.get("initial_games")))])
+        if payload.get("max_rulesets") is not None:
+            command.extend(["--max-rulesets", str(int(payload.get("max_rulesets")))])
+        if payload.get("promising_target") is not None:
+            command.extend(["--promising-target", str(float(payload.get("promising_target")))])
+        if payload.get("leniency") is not None:
+            command.extend(["--leniency", str(float(payload.get("leniency")))])
+        if payload.get("retrain_episodes") is not None:
+            command.extend(["--retrain-episodes", str(int(payload.get("retrain_episodes")))])
+        if payload.get("max_promising") is not None:
+            command.extend(["--max-promising", str(int(payload.get("max_promising")))])
+        if payload.get("final_choices") is not None:
+            command.extend(["--final-choices", str(int(payload.get("final_choices")))])
+        if payload.get("final_train_episodes") is not None:
+            command.extend(["--final-train-episodes", str(int(payload.get("final_train_episodes")))])
+        if payload.get("bounds_json") is not None:
+            command.extend(["--bounds-json", json.dumps(payload.get("bounds_json"))])
+        return command
+
     raise ValueError(f"Unsupported job type: {job['job_type']}")
 
 

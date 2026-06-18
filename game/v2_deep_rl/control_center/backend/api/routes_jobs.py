@@ -7,6 +7,7 @@ from jobs.queue_manager import (
     enqueue_evaluation_job,
     enqueue_train_job,
     get_job_details,
+    enqueue_ruleset_search_job,
     get_job_log_tail,
     get_job_progress,
     list_jobs,
@@ -55,6 +56,14 @@ def create_training_job(payload: dict):
     """Queue a training, resume, or fine-tune job."""
     try:
         return enqueue_train_job(payload)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+@router.post("/ruleset-search")
+def create_ruleset_search_job(payload: dict):
+    """Queue a ruleset search job to find promising randomized configs."""
+    try:
+        return enqueue_ruleset_search_job(payload)
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
 
