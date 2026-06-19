@@ -315,7 +315,7 @@
     "seed": 42,
     "epsilon_start": 1.0,
     "epsilon_min": 0.05,
-    "epsilon_decay_episodes": 450000,
+    "epsilon_decay_end": 0.9,
     "run_notes": "",
     "rule_randomization_enabled": false,
     "rule_randomization_frequency": 1,

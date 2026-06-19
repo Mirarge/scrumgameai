@@ -55,7 +55,7 @@ def run_autopilot(run_id: str, dry_run: bool = False, context: dict | None = Non
         decision["next_payload"] = {
             "episodes": CONTINUE_EPISODES,
             "learning_rate": current_config.get("learning_rate", 0.0005),
-            "epsilon_decay_episodes": current_config.get("epsilon_decay_episodes", 450000),
+            "epsilon_decay_end": current_config.get("epsilon_decay_end", 0.9),
             "resume_from": decision["best_checkpoint_path"],
             "resume_mode": "strict",
             "resume_episodes_mode": "incremental",

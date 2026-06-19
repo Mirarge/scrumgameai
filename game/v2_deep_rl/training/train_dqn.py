@@ -201,19 +201,21 @@ def rolling_average(values, window_size=500):
 
 def epsilon_by_episode(
     episode,
+    episodes,
     epsilon_start=1.0,
     epsilon_min=0.05,
-    epsilon_decay_episodes=45000,
+    epsilon_decay_end=0.9
 ):
     """
     Linearly decay epsilon very slowly across the first 45,000 episodes.
 
     The 8-action branch needs more exploration than the earlier binary-action setup.
     """
-    if episode >= epsilon_decay_episodes:
+    if episode >= episodes*epsilon_decay_end:
         return epsilon_min
+    
 
-    progress = episode / float(epsilon_decay_episodes)
+    progress = episode / float(episodes)
     return epsilon_start - (epsilon_start - epsilon_min) * progress
 
 
@@ -227,7 +229,7 @@ def resolve_training_config(
     evaluation_interval=None,
     evaluation_episodes=None,
     seed=None,
-    epsilon_decay_episodes=None,
+    epsilon_decay_end=None,
     rule_randomization_enabled=None,
     rule_randomization_frequency=None,
     rule_randomization_eval_configs=None,
@@ -254,8 +256,8 @@ def resolve_training_config(
         payload["evaluation_episodes"] = int(evaluation_episodes)
     if seed is not None:
         payload["seed"] = int(seed)
-    if epsilon_decay_episodes is not None:
-        payload["epsilon_decay_episodes"] = int(epsilon_decay_episodes)
+    if epsilon_decay_end is not None:
+        payload["epsilon_decay_end"] = int(epsilon_decay_end)
     if rule_randomization_enabled is not None:
         payload["rule_randomization_enabled"] = bool(rule_randomization_enabled)
     if rule_randomization_frequency is not None:
@@ -530,7 +532,7 @@ def train_dqn_agent(
     evaluation_interval=10000,
     evaluation_episodes=100,
     seed=42,
-    epsilon_decay_episodes=None,
+    epsilon_decay_end=None,
     rule_randomization_enabled=None,
     rule_randomization_frequency=None,
     rule_randomization_eval_configs=None,
@@ -546,6 +548,7 @@ def train_dqn_agent(
     resume_from=None,
     resume_mode="strict",
     resume_episodes_mode="incremental",
+    agentType = "agile",
 ):
     """Train a Double DQN agent on the advanced Scrum Game environment."""
     if resume_episodes_mode not in {"incremental", "absolute"}:
@@ -562,7 +565,7 @@ def train_dqn_agent(
         evaluation_interval=evaluation_interval,
         evaluation_episodes=evaluation_episodes,
         seed=seed,
-        epsilon_decay_episodes=epsilon_decay_episodes,
+        epsilon_decay_end=epsilon_decay_end,
         rule_randomization_enabled=rule_randomization_enabled,
         rule_randomization_frequency=rule_randomization_frequency,
         rule_randomization_eval_configs=rule_randomization_eval_configs,
@@ -632,7 +635,7 @@ def train_dqn_agent(
         replay_capacity=resolved_training_config.replay_capacity,
         batch_size=resolved_training_config.batch_size,
         target_update_frequency=resolved_training_config.target_update_frequency,
-        agentType="agile"
+        agentType=agentType,
     )
     resume_metadata = initialize_agent_from_checkpoint(
         agent,
@@ -718,9 +721,10 @@ def train_dqn_agent(
 
         epsilon = epsilon_by_episode(
             episode - 1,
+            num_episodes,
             epsilon_start=resolved_training_config.epsilon_start,
             epsilon_min=resolved_training_config.epsilon_min,
-            epsilon_decay_episodes=resolved_training_config.epsilon_decay_episodes,
+            epsilon_decay_end=resolved_training_config.epsilon_decay_end,
         )
 
         # Clear screen using ANSI escape codes
@@ -934,9 +938,10 @@ def train_dqn_agent(
             "resume_legacy_checkpoint": (resume_metadata or {}).get("resume_legacy_checkpoint"),
             "final_epsilon": epsilon_by_episode(
                 final_episode - 1,
+                final_episode - 1,
                 epsilon_start=resolved_training_config.epsilon_start,
                 epsilon_min=resolved_training_config.epsilon_min,
-                epsilon_decay_episodes=resolved_training_config.epsilon_decay_episodes,
+                epsilon_decay_end=resolved_training_config.epsilon_decay_end,
             ),
             "mean_training_reward": (sum(training_rewards) / len(training_rewards)) if training_rewards else None,
             "mean_training_loss": (sum(training_losses) / len(training_losses)) if training_losses else None,
@@ -1002,7 +1007,7 @@ def main():
         evaluation_interval=args.evaluation_interval,
         evaluation_episodes=args.evaluation_episodes,
         seed=args.seed,
-        epsilon_decay_episodes=args.epsilon_decay_episodes,
+        epsilon_decay_end=args.epsilon_decay_end,
         rule_randomization_enabled=True if args.rule_randomization else None,
         rule_randomization_frequency=args.rule_randomization_frequency,
         rule_randomization_eval_configs=args.rule_randomization_eval_configs,

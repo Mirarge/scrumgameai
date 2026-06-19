@@ -82,7 +82,7 @@ def _make_plateau_run(runs_dir: Path, run_id: str) -> None:
         json.dumps(
             {
                 "learning_rate": 0.0005,
-                "epsilon_decay_episodes": 450000,
+                "epsilon_decay_end": 0.9,
                 "epsilon_start": 1.0,
                 "epsilon_min": 0.05,
             }

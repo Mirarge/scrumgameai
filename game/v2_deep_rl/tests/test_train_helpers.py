@@ -84,42 +84,42 @@ resolve_training_config = _train_dqn.resolve_training_config
 
 class TestEpsilonByEpisode:
     def test_episode_zero_returns_epsilon_start(self):
-        result = epsilon_by_episode(0, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_episodes=1000)
+        result = epsilon_by_episode(0, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_end=0.9)
         assert result == pytest.approx(1.0)
 
     def test_episode_at_decay_returns_epsilon_min(self):
-        result = epsilon_by_episode(1000, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_episodes=1000)
+        result = epsilon_by_episode(1000, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_end=0.9)
         assert result == pytest.approx(0.05)
 
     def test_episode_beyond_decay_clamps_to_epsilon_min(self):
-        result = epsilon_by_episode(999999, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_episodes=1000)
+        result = epsilon_by_episode(999999, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_end=0.9)
         assert result == pytest.approx(0.05)
 
     def test_midpoint_is_linearly_interpolated(self):
         """At episode 500 with decay=1000 epsilon should be (start+min)/2."""
-        start, minimum, decay = 1.0, 0.0, 1000
-        result = epsilon_by_episode(500, epsilon_start=start, epsilon_min=minimum, epsilon_decay_episodes=decay)
+        start, minimum, decay = 1.0, 0.0, 0.9
+        result = epsilon_by_episode(500, epsilon_start=start, epsilon_min=minimum, epsilon_decay_end=decay)
         expected = start - (start - minimum) * (500 / 1000)
         assert result == pytest.approx(expected)
 
     def test_decay_is_strictly_decreasing(self):
         """Epsilon must be strictly decreasing from episode 0 to decay-1."""
-        previous = epsilon_by_episode(0, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_episodes=500)
+        previous = epsilon_by_episode(0, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_end=0.9)
         for ep in range(1, 501):
-            current = epsilon_by_episode(ep, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_episodes=500)
+            current = epsilon_by_episode(ep, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_end=0.9)
             assert current <= previous + 1e-9, f"Epsilon increased at episode {ep}"
             previous = current
 
     def test_epsilon_at_episode_one_less_than_decay(self):
         """Episode just before the cliff should be just above epsilon_min."""
-        result = epsilon_by_episode(449999, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_episodes=450000)
+        result = epsilon_by_episode(449999, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_end=0.9)
         assert result > 0.05
         assert result < 1.0
 
     def test_custom_start_and_min(self):
-        result = epsilon_by_episode(0, epsilon_start=0.8, epsilon_min=0.1, epsilon_decay_episodes=200)
+        result = epsilon_by_episode(0, epsilon_start=0.8, epsilon_min=0.1, epsilon_decay_end=200)
         assert result == pytest.approx(0.8)
-        result_end = epsilon_by_episode(200, epsilon_start=0.8, epsilon_min=0.1, epsilon_decay_episodes=200)
+        result_end = epsilon_by_episode(200, epsilon_start=0.8, epsilon_min=0.1, epsilon_decay_end=200)
         assert result_end == pytest.approx(0.1)
 
     def test_default_parameters(self):
@@ -129,7 +129,7 @@ class TestEpsilonByEpisode:
 
     @pytest.mark.parametrize("episode", [0, 1, 100, 1000, 9999])
     def test_result_always_between_min_and_start(self, episode):
-        result = epsilon_by_episode(episode, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_episodes=10000)
+        result = epsilon_by_episode(episode, epsilon_start=1.0, epsilon_min=0.05, epsilon_decay_end=10000)
         assert 0.05 <= result <= 1.0
 
 
@@ -223,7 +223,7 @@ class TestResolveTrainingConfig:
             "seed": 42,
             "epsilon_start": 1.0,
             "epsilon_min": 0.05,
-            "epsilon_decay_episodes": 45000,
+            "epsilon_decay_end": 45000,
             "run_notes": "",
         }
         defaults.update(kwargs)
@@ -272,8 +272,8 @@ class TestResolveTrainingConfig:
 
     def test_epsilon_decay_override(self):
         base = self._base_tc()
-        result = resolve_training_config(training_config=base, epsilon_decay_episodes=10000)
-        assert result.epsilon_decay_episodes == 10000
+        result = resolve_training_config(training_config=base, epsilon_decay_end=10000)
+        assert result.epsilon_decay_end == 10000
 
     def test_run_notes_override(self):
         base = self._base_tc()

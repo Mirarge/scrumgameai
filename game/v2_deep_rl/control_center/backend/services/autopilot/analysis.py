@@ -76,7 +76,7 @@ def analyze_run(run_id: str, context: dict | None = None) -> dict:
     )
 
     current_lr = float(training_config.get("learning_rate", 0.0005))
-    current_epsilon_decay = int(training_config.get("epsilon_decay_episodes", 450000))
+    current_epsilon_decay = float(training_config.get("epsilon_decay_end", 0.9))
     auto_continue_enabled = bool(training_config.get("auto_continue_enabled", False))
     auto_continue_cycles = int(training_config.get("auto_continue_cycles", 0) or 0)
 
@@ -183,7 +183,7 @@ def analyze_run(run_id: str, context: dict | None = None) -> dict:
         next_payload = {
             "episodes": CONTINUE_EPISODES,
             "learning_rate": new_lr,
-            "epsilon_decay_episodes": new_epsilon_decay,
+            "epsilon_decay_end": new_epsilon_decay,
             "resume_from": best_checkpoint_path,
             "resume_mode": resume_mode,
             "resume_episodes_mode": "incremental",
@@ -216,7 +216,7 @@ def analyze_run(run_id: str, context: dict | None = None) -> dict:
         },
         "current_config": {
             "learning_rate": current_lr,
-            "epsilon_decay_episodes": current_epsilon_decay,
+            "epsilon_decay_end": current_epsilon_decay,
             "rule_randomization_enabled": bool(training_config.get("rule_randomization_enabled", False)),
             "rule_randomization_frequency": int(training_config.get("rule_randomization_frequency", 1) or 1),
             "rule_randomization_eval_configs": int(training_config.get("rule_randomization_eval_configs", 12) or 12),

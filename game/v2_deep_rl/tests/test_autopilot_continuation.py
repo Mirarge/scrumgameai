@@ -55,7 +55,7 @@ def _make_run(
     # training_config.json
     (run_dir / "training_config.json").write_text(json.dumps({
         "learning_rate": 0.0005,
-        "epsilon_decay_episodes": 450_000,
+        "epsilon_decay_end": 0.9,
         "epsilon_start": 1.0,
         "epsilon_min": 0.05,
     }))

@@ -83,7 +83,7 @@ Invalid action rate          : {metrics.get("invalid_action_rate")} (fraction; >
 
 === Current hyperparameters ===
 learning_rate          : {current_config.get("learning_rate")} (safe range: {LR_MIN}–{LR_MAX})
-epsilon_decay_episodes : {current_config.get("epsilon_decay_episodes")} (safe range: {EPSILON_DECAY_MIN}–{EPSILON_DECAY_MAX})
+epsilon_decay_end : {current_config.get("epsilon_decay_end")} (safe range: {EPSILON_DECAY_MIN}–{EPSILON_DECAY_MAX})
 
 === Your task ===
 Decide whether ONE specific hyperparameter change is likely to help the agent escape
@@ -91,7 +91,7 @@ the current plateau, or whether the run should truly stop.
 
 Guidance:
 - If bankruptcy rate is still high (>40%) and reward is flat, the agent may benefit from
-  more exploration (increase epsilon_decay_episodes) or a lower, more stable learning rate.
+  more exploration (increase epsilon_decay_end) or a lower, more stable learning rate.
 - If bankruptcy rate is already low (<20%) but reward is flat, the agent may have converged —
   consider stopping unless variance is high (then lower learning_rate first).
 - If average_ending_money is positive but reward is flat, the agent may be close to optimal
@@ -102,11 +102,11 @@ Respond with a JSON object and nothing else:
   "action": "fine_tune" or "stop",
   "reason": "<one sentence>",
   "learning_rate": <float between {LR_MIN} and {LR_MAX}, optional>,
-  "epsilon_decay_episodes": <int between {EPSILON_DECAY_MIN} and {EPSILON_DECAY_MAX}, optional>,
+  "epsilon_decay_end": <int between {EPSILON_DECAY_MIN} and {EPSILON_DECAY_MAX}, optional>,
   "episodes": <int between {EPISODES_MIN} and {EPISODES_MAX}, default {CONTINUE_EPISODES}>
 }}
 
-Only include learning_rate or epsilon_decay_episodes if you are changing them.
+Only include learning_rate or epsilon_decay_end if you are changing them.
 Do not suggest rule changes or anything outside these two hyperparameters."""
 
     try:
@@ -156,11 +156,11 @@ Do not suggest rule changes or anything outside these two hyperparameters."""
     if "learning_rate" in suggestion:
         new_lr = max(LR_MIN, min(LR_MAX, float(suggestion["learning_rate"])))
 
-    new_epsilon_decay = current_config["epsilon_decay_episodes"]
-    if "epsilon_decay_episodes" in suggestion:
+    new_epsilon_decay = current_config["epsilon_decay_end"]
+    if "epsilon_decay_end" in suggestion:
         new_epsilon_decay = max(
             EPSILON_DECAY_MIN,
-            min(EPSILON_DECAY_MAX, int(suggestion["epsilon_decay_episodes"])),
+            min(EPSILON_DECAY_MAX, float(suggestion["epsilon_decay_end"])),
         )
 
     episodes = max(EPISODES_MIN, min(EPISODES_MAX, int(suggestion.get("episodes", CONTINUE_EPISODES))))
@@ -171,7 +171,7 @@ Do not suggest rule changes or anything outside these two hyperparameters."""
         "next_payload": {
             "episodes": episodes,
             "learning_rate": new_lr,
-            "epsilon_decay_episodes": new_epsilon_decay,
+            "epsilon_decay_end": new_epsilon_decay,
             "resume_from": best_checkpoint_path,
             "resume_mode": "fine-tune",
             "resume_episodes_mode": "incremental",
@@ -195,7 +195,7 @@ def probe_ai_advisor(metrics: dict | None = None, current_config: dict | None = 
     }
     test_config = current_config or {
         "learning_rate": 0.0005,
-        "epsilon_decay_episodes": 450000,
+        "epsilon_decay_end": 0.9,
     }
     stop_reason = (
         "Reward plateaued (0.5% over 4 windows). Bankruptcy rate: 35.0%."

@@ -1777,7 +1777,7 @@ function renderAutopilotPanel() {
     settingsCard.innerHTML = `
       <div class="metric-grid">
         <div class="metric-card"><span>Learning Rate</span><strong>${formatNumber(tc.learning_rate, 6)}</strong></div>
-        <div class="metric-card"><span>Epsilon Decay Ep.</span><strong>${tc.epsilon_decay_episodes?.toLocaleString() ?? "-"}</strong></div>
+        <div class="metric-card"><span>Epsilon Decay Ep.</span><strong>${tc.epsilon_decay_end?.toLocaleString() ?? "-"}</strong></div>
         <div class="metric-card"><span>Episodes</span><strong>${tc.episodes?.toLocaleString() ?? "-"}</strong></div>
         <div class="metric-card"><span>Gamma</span><strong>${formatNumber(tc.gamma, 4)}</strong></div>
         <div class="metric-card"><span>Batch Size</span><strong>${tc.batch_size ?? "-"}</strong></div>
@@ -1819,7 +1819,7 @@ function renderAutopilotPanel() {
         </div>
         ${d.next_payload ? `<div class="card-meta">
           <span class="tag info">lr ${formatNumber(d.next_payload.learning_rate, 6)}</span>
-          <span class="tag info">eps decay ${d.next_payload.epsilon_decay_episodes?.toLocaleString()}</span>
+          <span class="tag info">eps decay ${d.next_payload.epsilon_decay_end?.toLocaleString()}</span>
           <span class="tag info">${d.next_payload.episodes?.toLocaleString()} ep</span>
         </div>` : ""}
       </div>

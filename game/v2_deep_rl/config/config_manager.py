@@ -306,7 +306,7 @@ class TrainingConfig:
     seed: int = 42
     epsilon_start: float = 1.0
     epsilon_min: float = 0.05
-    epsilon_decay_episodes: int = 450000
+    epsilon_decay_end: float = 0.9
     run_notes: str = ""
     rule_randomization_enabled: bool = False
     rule_randomization_frequency: int = 1
@@ -329,7 +329,7 @@ class TrainingConfig:
             "seed": self.seed,
             "epsilon_start": self.epsilon_start,
             "epsilon_min": self.epsilon_min,
-            "epsilon_decay_episodes": self.epsilon_decay_episodes,
+            "epsilon_decay_end": self.epsilon_decay_end,
             "run_notes": self.run_notes,
             "rule_randomization_enabled": self.rule_randomization_enabled,
             "rule_randomization_frequency": self.rule_randomization_frequency,
@@ -359,7 +359,7 @@ class TrainingConfig:
             seed=int(payload.get("seed", 42)),
             epsilon_start=float(payload.get("epsilon_start", 1.0)),
             epsilon_min=float(payload.get("epsilon_min", 0.05)),
-            epsilon_decay_episodes=int(payload.get("epsilon_decay_episodes", 450000)),
+            epsilon_decay_end=float(payload.get("epsilon_decay_end", 0.9)),
             run_notes=str(payload.get("run_notes", "")),
             rule_randomization_enabled=bool(payload.get("rule_randomization_enabled", False)),
             rule_randomization_frequency=max(1, int(payload.get("rule_randomization_frequency", 1))),

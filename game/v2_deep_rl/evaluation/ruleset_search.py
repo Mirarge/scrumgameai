@@ -108,6 +108,7 @@ def main():
             run_dir=str(candidate_run),
             game_config=sampled,
             seed=42,
+            agentType="agile",
         )
         # load best checkpoints from candidate_run/checkpoints
         ag_checkpoint = candidate_run / "checkpoints" / "best_scrum_model.pth"
@@ -116,7 +117,8 @@ def main():
             num_episodes=args.retrain_episodes,
             run_dir=str(candidate_run),
             game_config=sampled,
-            seed=4242,
+            seed=42,
+            agentType="waterfall",
         )
 
         # after retraining, run extended matches (X*10 - X more -> total X*10)

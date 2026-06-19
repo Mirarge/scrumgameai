@@ -279,7 +279,7 @@ class TestTrainingConfig:
             "seed": 7,
             "epsilon_start": 0.8,
             "epsilon_min": 0.02,
-            "epsilon_decay_episodes": 80000,
+            "epsilon_decay_end": 0.9,
             "run_notes": "test run",
             "rule_randomization_enabled": True,
             "rule_randomization_frequency": 2,
@@ -300,7 +300,7 @@ class TestTrainingConfig:
         assert tc.seed == 42
         assert tc.epsilon_start == 1.0
         assert tc.epsilon_min == 0.05
-        assert tc.epsilon_decay_episodes == 450000
+        assert tc.epsilon_decay_end == 0.9
         assert tc.run_notes == ""
         assert tc.rule_randomization_enabled is False
         assert tc.auto_continue_enabled is False

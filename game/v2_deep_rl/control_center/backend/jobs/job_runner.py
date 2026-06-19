@@ -78,8 +78,8 @@ def build_command(job: dict) -> list[str]:
             command.extend(["--learning-rate", str(payload["learning_rate"])])
         if payload.get("gamma") is not None:
             command.extend(["--gamma", str(payload["gamma"])])
-        if payload.get("epsilon_decay_episodes") is not None:
-            command.extend(["--epsilon-decay-episodes", str(int(payload["epsilon_decay_episodes"]))])
+        if payload.get("epsilon_decay_end") is not None:
+            command.extend(["--epsilon-decay-episodes", str(float(payload["epsilon_decay_end"]))])
         if payload.get("rule_randomization_enabled"):
             command.append("--rule-randomization")
         if payload.get("rule_randomization_frequency") is not None:

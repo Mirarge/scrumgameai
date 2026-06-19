@@ -61,7 +61,7 @@ def _make_run(
     has_latest_checkpoint: bool = True,
     has_best_checkpoint: bool = True,
     learning_rate: float = 0.0005,
-    epsilon_decay_episodes: int = 450_000,
+    epsilon_decay_end: float = 0.9,
 ) -> Path:
     """Create a minimal fake run directory for autopilot decision tests."""
     run_dir = runs_dir / run_id
@@ -72,7 +72,7 @@ def _make_run(
     # training_config.json
     (run_dir / "training_config.json").write_text(json.dumps({
         "learning_rate": learning_rate,
-        "epsilon_decay_episodes": epsilon_decay_episodes,
+        "epsilon_decay_end": epsilon_decay_end,
         "epsilon_start": 1.0,
         "epsilon_min": 0.05,
     }))
@@ -332,7 +332,7 @@ class TestExtendEpsilonDecayBranch:
         decision = autopilot.analyze_run("run_ext")
         assert decision["action"] == "extend_epsilon_decay"
 
-    def test_extend_increases_epsilon_decay_episodes(self, runs_dir):
+    def test_extend_increases_epsilon_decay_end(self, runs_dir):
         import services.training_autopilot as autopilot
 
         original_decay = 450_000
@@ -341,12 +341,12 @@ class TestExtendEpsilonDecayBranch:
             final_epsilon=0.10,
             eval_rewards=[-5000.0, -5010.0, -4995.0, -5002.0],
             invalid_action_rate=0.15,
-            epsilon_decay_episodes=original_decay,
+            epsilon_decay_end=original_decay,
         )
 
         decision = autopilot.analyze_run("run_ext")
         assert decision["action"] == "extend_epsilon_decay"
-        new_decay = decision["next_payload"]["epsilon_decay_episodes"]
+        new_decay = decision["next_payload"]["epsilon_decay_end"]
         assert new_decay > original_decay
 
     def test_extend_uses_extension_factor(self, runs_dir):
@@ -359,14 +359,14 @@ class TestExtendEpsilonDecayBranch:
             final_epsilon=0.10,
             eval_rewards=[-5000.0, -5010.0, -4995.0, -5002.0],
             invalid_action_rate=0.20,
-            epsilon_decay_episodes=original_decay,
+            epsilon_decay_end=original_decay,
         )
 
         decision = autopilot.analyze_run("run_ext")
         assert decision["action"] == "extend_epsilon_decay"
 
         expected = original_decay + int(original_decay * (autopilot.EPSILON_EXTENSION_FACTOR - 1.0))
-        assert decision["next_payload"]["epsilon_decay_episodes"] == expected
+        assert decision["next_payload"]["epsilon_decay_end"] == expected
 
     def test_extend_uses_fine_tune_resume_mode(self, runs_dir):
         import services.training_autopilot as autopilot
