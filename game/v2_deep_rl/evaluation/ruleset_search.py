@@ -49,14 +49,15 @@ def main():
     parser = argparse.ArgumentParser(description="Search for promising randomized rulesets by head-to-head matches.")
     parser.add_argument("--run-dir", required=True)
     parser.add_argument("--game-config", default=None)
-    parser.add_argument("--initial-games", type=int, default=10)
+    parser.add_argument("--initial-games", type=int, default=100)
+    parser.add_argument("--final-games", type=int, default=200)
     parser.add_argument("--max-rulesets", type=int, default=50)
     parser.add_argument("--promising-target", type=float, default=0.7)
     parser.add_argument("--leniency", type=float, default=0.05)
-    parser.add_argument("--retrain-episodes", type=int, default=500)
+    parser.add_argument("--retrain-episodes", type=int, default=2000)
     parser.add_argument("--max-promising", type=int, default=5)
-    parser.add_argument("--final-choices", type=int, default=1)
-    parser.add_argument("--final-train-episodes", type=int, default=1000)
+    parser.add_argument("--final-choices", type=int, default=3)
+    parser.add_argument("--final-train-episodes", type=int, default=5000)
     parser.add_argument("--bounds-json", default=None)
     args = parser.parse_args()
 
@@ -141,7 +142,7 @@ def main():
             except Exception:
                 pass
 
-            total_games = max(1, args.initial_games * 10)
+            total_games = max(1, args.initial_games * args.final_games)
             extended = play_head_to_head(sampled, agent_a2, agent_b2, games=total_games, base_seed=3000 + index * 100)
             winrate_a_final = extended["wins_a"] / max(1, extended["games"])
             candidate.update({"extended": extended, "final_winrate_a": winrate_a_final})
