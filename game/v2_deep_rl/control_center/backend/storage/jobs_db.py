@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from pathlib import Path
 import hashlib
 import hmac
 import json
 import os
 import secrets
 import sqlite3
+import time
 
 from services.app_paths import BACKEND_DIR
 
@@ -25,8 +27,41 @@ def get_connection() -> sqlite3.Connection:
     return connection
 
 
+def _is_db_corrupt(path: Path) -> bool:
+    try:
+        with sqlite3.connect(path) as conn:
+            cursor = conn.execute("PRAGMA integrity_check")
+            result = cursor.fetchone()
+        return result is None or result[0] != "ok"
+    except sqlite3.DatabaseError:
+        return True
+
+
 def init_db() -> None:
+    global DB_PATH
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if DB_PATH.exists() and _is_db_corrupt(DB_PATH):
+        backup_path = DB_PATH.with_suffix(DB_PATH.suffix + ".corrupt")
+        counter = 1
+        while backup_path.exists():
+            backup_path = DB_PATH.with_suffix(f"{DB_PATH.suffix}.corrupt.{counter}")
+            counter += 1
+
+        try:
+            DB_PATH.rename(backup_path)
+            print(f"[jobs_db] Corrupt DB detected; moved {DB_PATH} to {backup_path}")
+        except PermissionError:
+            fallback_path = DB_PATH.with_suffix(DB_PATH.suffix + ".fallback")
+            counter = 1
+            while fallback_path.exists():
+                fallback_path = DB_PATH.with_suffix(f"{DB_PATH.suffix}.fallback.{counter}")
+                counter += 1
+            print(
+                f"[jobs_db] Corrupt DB detected and locked. Using fallback DB file {fallback_path}"
+            )
+            DB_PATH = fallback_path
+        time.sleep(0.1)
+
     with get_connection() as connection:
         connection.execute(
             """

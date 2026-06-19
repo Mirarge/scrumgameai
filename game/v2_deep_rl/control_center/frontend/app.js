@@ -3255,6 +3255,7 @@ async function queueTrainingJob(event) {
     training_config_path: selectedTrainingConfig()?.path || "",
     episodes: Number($("trainEpisodesInput").value),
     evaluation_episodes: Number($("trainEvalEpisodesInput").value),
+    agent_type: $("trainAgentTypeSelect").value,
     run_name: $("trainRunNameInput").value.trim(),
     run_notes: $("trainNotesInput").value.trim(),
   };

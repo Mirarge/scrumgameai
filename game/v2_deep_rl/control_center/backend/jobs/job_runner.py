@@ -96,6 +96,8 @@ def build_command(job: dict) -> list[str]:
             command.extend(["--seed", str(int(payload["seed"]))])
         if payload.get("run_notes"):
             command.extend(["--notes", str(payload["run_notes"])])
+        if payload.get("agent_type") is not None:
+            command.extend(["--agent-type", str(payload.get("agent_type"))])
         if payload.get("resume_from"):
             command.extend(["--resume-from", str(payload["resume_from"])])
             command.extend(["--resume-mode", str(payload.get("resume_mode", "strict"))])
@@ -138,6 +140,10 @@ def build_command(job: dict) -> list[str]:
             command.extend(["--final-choices", str(int(payload.get("final_choices")))])
         if payload.get("final_train_episodes") is not None:
             command.extend(["--final-train-episodes", str(int(payload.get("final_train_episodes")))])
+        if payload.get("agile_checkpoint_path") is not None:
+            command.extend(["--agile-checkpoint", str(payload.get("agile_checkpoint_path"))])
+        if payload.get("waterfall_checkpoint_path") is not None:
+            command.extend(["--waterfall-checkpoint", str(payload.get("waterfall_checkpoint_path"))])
         if payload.get("bounds_json") is not None:
             command.extend(["--bounds-json", json.dumps(payload.get("bounds_json"))])
         return command

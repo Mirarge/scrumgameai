@@ -80,8 +80,8 @@ def sample_game_config(
     payload["penalty_positive"] = _rand_int(rng, resolved_bounds, "penalty_positive")
 
     incident = payload.setdefault("incident", {})
-    incident["draw_probability"] = round(_rand_float(rng, resolved_bounds, "incident_draw_probability"), 3)
-    incident["severity_multiplier"] = round(_rand_float(rng, resolved_bounds, "incident_severity_multiplier"), 3)
+    incident["draw_probability"] = round(_rand_float(rng, resolved_bounds, "incident_draw_probability"), 1)
+    incident["severity_multiplier"] = round(_rand_float(rng, resolved_bounds, "incident_severity_multiplier"), 1)
 
     dice_sides_low, dice_sides_high = _range(resolved_bounds, "dice_sides")
     dice_count_low, dice_count_high = _range(resolved_bounds, "dice_count")

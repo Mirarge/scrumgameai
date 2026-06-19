@@ -60,6 +60,7 @@ def create_training_job(payload: dict):
         raise HTTPException(status_code=400, detail=str(error)) from error
 
 @router.post("/ruleset-search")
+@router.post("/ruleset_search")
 def create_ruleset_search_job(payload: dict):
     """Queue a ruleset search job to find promising randomized configs."""
     try:

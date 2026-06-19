@@ -991,6 +991,7 @@ def parse_args():
             "'absolute' treats --episodes as the final absolute episode target."
         ),
     )
+    parser.add_argument("--agent-type", choices=["agile", "waterfall"], default="agile", help="Which agent type to train.")
     parser.add_argument("--notes", default="", help="Optional run notes saved with the artifacts.")
     return parser.parse_args()
 
@@ -1021,6 +1022,7 @@ def main():
         resume_from=args.resume_from,
         resume_mode=args.resume_mode,
         resume_episodes_mode=args.resume_episodes_mode,
+        agentType=args.agent_type,
     )
 
     print(f"Training episodes completed: {len(training_rewards)}")

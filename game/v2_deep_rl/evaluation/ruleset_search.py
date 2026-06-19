@@ -96,61 +96,67 @@ def main():
             "game_config": sampled.to_dict(),
             "initial": initial,
             "score": score,
+            "status": "promising" if abs(winrate_a - args.promising_target) <= args.leniency else "rejected",
         }
 
-        # retrain both agents for retrain_episodes
-        # create unique run folder per candidate
-        candidate_run = artifacts_dir / f"candidate_{index+1}"
-        candidate_run.mkdir(parents=True, exist_ok=True)
-        # train Agile
-        train_dqn_agent(
-            num_episodes=args.retrain_episodes,
-            run_dir=str(candidate_run),
-            game_config=sampled,
-            seed=42,
-            agentType="agile",
-        )
-        # load best checkpoints from candidate_run/checkpoints
-        ag_checkpoint = candidate_run / "checkpoints" / "best_scrum_model.pth"
-        # train Waterfall
-        train_dqn_agent(
-            num_episodes=args.retrain_episodes,
-            run_dir=str(candidate_run),
-            game_config=sampled,
-            seed=42,
-            agentType="waterfall",
-        )
+        if candidate["status"] == "promising":
+            candidate_run = artifacts_dir / f"candidate_{index+1}"
+            agile_run = candidate_run / "agile"
+            waterfall_run = candidate_run / "waterfall"
+            agile_run.mkdir(parents=True, exist_ok=True)
+            waterfall_run.mkdir(parents=True, exist_ok=True)
 
-        # after retraining, run extended matches (X*10 - X more -> total X*10)
-        total_games = max(1, args.initial_games * 10)
-        more_games = total_games - args.initial_games
-        # build agents from latest best checkpoints if available, else from scratch
-        # For simplicity, reuse untrained agents if checkpoints missing
-        agent_a2, _ = build_agent_for_config(sampled, agentType="agile")
-        agent_b2, _ = build_agent_for_config(sampled, agentType="waterfall")
-        try:
-            from rl.checkpoint_utils import load_agent_from_checkpoint
-            if ag_checkpoint.exists():
-                agent_a2, _, _ = load_agent_from_checkpoint(str(ag_checkpoint), game_config=sampled, strict_signature=False)
-        except Exception:
-            pass
+            train_dqn_agent(
+                num_episodes=args.retrain_episodes,
+                run_dir=str(agile_run),
+                game_config=sampled,
+                seed=42,
+                agentType="agile",
+            )
+            train_dqn_agent(
+                num_episodes=args.retrain_episodes,
+                run_dir=str(waterfall_run),
+                game_config=sampled,
+                seed=42,
+                agentType="waterfall",
+            )
 
-        extended = play_head_to_head(sampled, agent_a2, agent_b2, games=total_games, base_seed=3000 + index * 100)
-        winrate_a_final = extended["wins_a"] / max(1, extended["games"])
-        candidate.update({"extended": extended, "final_winrate_a": winrate_a_final})
+            agile_checkpoint = agile_run / "checkpoints" / "best_scrum_model.pth"
+            waterfall_checkpoint = waterfall_run / "checkpoints" / "best_scrum_model.pth"
+            candidate["agile_checkpoint"] = str(agile_checkpoint) if agile_checkpoint.exists() else None
+            candidate["waterfall_checkpoint"] = str(waterfall_checkpoint) if waterfall_checkpoint.exists() else None
 
-        # if still close to target, save game config
-        if abs(winrate_a_final - args.promising_target) <= args.leniency:
-            cfg_path = artifacts_dir / f"promising_{len(promising)+1}_config.json"
-            save_game_config(sampled, cfg_path)
-            candidate["saved_config_path"] = str(cfg_path)
-            promising.append(candidate)
+            agent_a2, _ = build_agent_for_config(sampled, agentType="agile")
+            agent_b2, _ = build_agent_for_config(sampled, agentType="waterfall")
+            try:
+                from rl.checkpoint_utils import load_agent_from_checkpoint
+                if agile_checkpoint.exists():
+                    agent_a2, _, _ = load_agent_from_checkpoint(
+                        str(agile_checkpoint), game_config=sampled, strict_signature=False
+                    )
+                if waterfall_checkpoint.exists():
+                    agent_b2, _, _ = load_agent_from_checkpoint(
+                        str(waterfall_checkpoint), game_config=sampled, strict_signature=False
+                    )
+            except Exception:
+                pass
 
-        # persist tried
+            total_games = max(1, args.initial_games * 10)
+            extended = play_head_to_head(sampled, agent_a2, agent_b2, games=total_games, base_seed=3000 + index * 100)
+            winrate_a_final = extended["wins_a"] / max(1, extended["games"])
+            candidate.update({"extended": extended, "final_winrate_a": winrate_a_final})
+
+            if abs(winrate_a_final - args.promising_target) <= args.leniency:
+                cfg_path = artifacts_dir / f"promising_{len(promising)+1}_config.json"
+                save_game_config(sampled, cfg_path)
+                candidate["saved_config_path"] = str(cfg_path)
+                promising.append(candidate)
+        else:
+            candidate.update({"extended": None, "final_winrate_a": None})
+
         tried_list = list(tried)
         tried_path.write_text(json.dumps(tried_list, indent=2), encoding="utf-8")
 
-        # stop early if enough promising found
         if args.max_promising and len(promising) >= args.max_promising:
             break
 
@@ -160,10 +166,38 @@ def main():
     final_results = []
     for idx, cand in enumerate(final_candidates):
         cfg = GameConfig.from_dict(cand["game_config"]) if isinstance(cand.get("game_config"), dict) else cand["game_config"]
-        run_final = artifacts_dir / f"final_{idx+1}"
-        run_final.mkdir(parents=True, exist_ok=True)
-        train_dqn_agent(num_episodes=args.final_train_episodes, run_dir=str(run_final), game_config=cfg)
-        final_results.append({"signature": cand["signature"], "final_run": str(run_final)})
+        final_run = artifacts_dir / f"final_{idx+1}"
+        final_agile = final_run / "agile"
+        final_waterfall = final_run / "waterfall"
+        final_agile.mkdir(parents=True, exist_ok=True)
+        final_waterfall.mkdir(parents=True, exist_ok=True)
+
+        train_dqn_agent(
+            num_episodes=args.final_train_episodes,
+            run_dir=str(final_agile),
+            game_config=cfg,
+            seed=42,
+            agentType="agile",
+            resume_from=cand.get("agile_checkpoint"),
+            resume_mode="fine-tune" if cand.get("agile_checkpoint") else "strict",
+        )
+        train_dqn_agent(
+            num_episodes=args.final_train_episodes,
+            run_dir=str(final_waterfall),
+            game_config=cfg,
+            seed=42,
+            agentType="waterfall",
+            resume_from=cand.get("waterfall_checkpoint"),
+            resume_mode="fine-tune" if cand.get("waterfall_checkpoint") else "strict",
+        )
+
+        final_results.append(
+            {
+                "signature": cand["signature"],
+                "final_agile_run": str(final_agile),
+                "final_waterfall_run": str(final_waterfall),
+            }
+        )
 
     out = {
         "promising": promising_sorted,
