@@ -291,6 +291,7 @@ async function apiRequest(path, options = {}, timeoutMs = 20000) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const token = getToken();
+    console.log(`${state.apiBaseUrl}${path}`);
     const response = await fetch(`${state.apiBaseUrl}${path}`, {
       signal: controller.signal,
       headers: {
@@ -3505,8 +3506,6 @@ function exportComparisonCsv() {
 }
 
 const AUTO_CONNECT_URLS = [
-  "http://188.166.52.37:8000",
-  "http://188.166.52.37",
   "http://127.0.0.1:8000",
 ];
 

@@ -14,7 +14,6 @@ from jobs.queue_manager import (
     stop_job,
 )
 
-
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 
@@ -60,17 +59,16 @@ def create_training_job(payload: dict):
         raise HTTPException(status_code=400, detail=str(error)) from error
 
 @router.post("/ruleset-search")
-@router.post("/ruleset_search")
 def create_ruleset_search_job(payload: dict):
     """Queue a ruleset search job to find promising randomized configs."""
     try:
         return enqueue_ruleset_search_job(payload)
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
-
-
+    
 @router.post("/evaluate")
 def create_evaluation_job(payload: dict):
+
     """Queue an evaluation or robustness job against an existing run directory."""
     try:
         return enqueue_evaluation_job(payload)

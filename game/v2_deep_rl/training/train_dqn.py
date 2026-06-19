@@ -37,10 +37,13 @@ RUNS_DIR = ARTIFACTS_DIR / "runs"
 
 def print_progress_bar(current_episode, total_episodes, bar_length=50):
     """Print a progress bar for training episodes."""
-    percent = current_episode / total_episodes
-    filled = int(bar_length * percent)
-    bar = '█' * filled + '░' * (bar_length - filled)
-    print(f"\rProgress: [{bar}] {percent*100:.1f}% ({current_episode}/{total_episodes})", flush=True)
+    try:
+        percent = current_episode / total_episodes
+        filled = int(bar_length * percent)
+        bar = '█' * filled + '░' * (bar_length - filled)
+        print(f"\rProgress: [{bar}] {percent*100:.1f}% ({current_episode}/{total_episodes})", flush=True)
+    except:
+        print("")
 
 
 def _slugify_run_name(value: str | None) -> str:
@@ -1039,11 +1042,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-
-def print_progress_bar(current_episode, total_episodes, bar_length=50):
-    """Print a progress bar for training episodes."""
-    percent = current_episode / total_episodes
-    filled = int(bar_length * percent)
-    bar = '█' * filled + '░' * (bar_length - filled)
-    print(f"\rProgress: [{bar}] {percent*100:.1f}% ({current_episode}/{total_episodes})", end='', flush=True)

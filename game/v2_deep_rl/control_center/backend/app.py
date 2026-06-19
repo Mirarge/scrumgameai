@@ -26,7 +26,6 @@ _PROTECTED_PREFIXES = (
     "/campaigns",
     "/configs",
     "/checkpoints",
-    "/jobs",
     "/play",
     "/runs",
     "/testing",

@@ -1,8 +1,0 @@
-[jobs_db] Corrupt DB detected and locked. Using fallback DB file C:\Users\daanp\Desktop\scrumgameai\game\v2_deep_rl\control_center\backend\storage\control_center.db.fallback.1
-Traceback (most recent call last):
-  File "C:\Users\daanp\Desktop\scrumgameai\game\v2_deep_rl\control_center\backend\jobs\job_runner.py", line 248, in <module>
-    raise SystemExit(run_job(args.job_id))
-                     ~~~~~~~^^^^^^^^^^^^^
-  File "C:\Users\daanp\Desktop\scrumgameai\game\v2_deep_rl\control_center\backend\jobs\job_runner.py", line 158, in run_job
-    raise RuntimeError(f"Job `{job_id}` was not found.")
-RuntimeError: Job `1` was not found.
