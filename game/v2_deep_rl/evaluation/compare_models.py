@@ -12,12 +12,12 @@ from game.v2_deep_rl.rl.checkpoint_utils import load_agent_for_inference
 game_config = _resolve_game_config("default_game_config")[0]
 
 waterfall, _, _ = load_agent_for_inference(
-    checkpoint_path="./game/v2_deep_rl/artifacts/runs/waterfall_training/checkpoints/best_scrum_model.pth",
+    checkpoint_path="./game/v2_deep_rl/models/waterfall_model v1.0.0.pth",
     agentType="waterfall"
 )
 
 agile, _, _ = load_agent_for_inference(
-    checkpoint_path="./game/v2_deep_rl/artifacts/runs/agile_training/checkpoints/best_scrum_model.pth",
+    checkpoint_path="./game/v2_deep_rl/models/agile_model v1.0.0.pth",
     agentType="agile"
 )
 
