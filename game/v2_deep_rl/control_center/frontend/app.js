@@ -38,7 +38,7 @@ function logout() {
 const state = {
   apiBaseUrl: window.location.protocol.startsWith("http")
     ? window.location.origin
-    : "http://127.0.0.1:8000",
+    : "https://scrumbalancing.nicebeach-b329c5ea.northeurope.azurecontainerapps.io",
   health: null,
   gameConfigs: [],
   trainingConfigs: [],
@@ -3506,7 +3506,7 @@ function exportComparisonCsv() {
 }
 
 const AUTO_CONNECT_URLS = [
-  "http://127.0.0.1:8000",
+  "https://scrumbalancing.nicebeach-b329c5ea.northeurope.azurecontainerapps.io",
 ];
 
 function _showConnectedUi() {
@@ -4046,6 +4046,9 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   errorEl.textContent = "";
   submitBtn.disabled = true;
   submitBtn.textContent = "Signing in…";
+
+  console.log('test')
+  console.log(`${state.apiBaseUrl}/auth/login`)
 
   try {
     const resp = await fetch(`${state.apiBaseUrl}/auth/login`, {

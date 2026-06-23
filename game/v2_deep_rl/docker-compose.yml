@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  app-backend:
+    build:
+      context: .
+      dockerfile: control_center/backend/Dockerfile
+    ports:
+      - "8000:8000" # Expose backend on port 8000
